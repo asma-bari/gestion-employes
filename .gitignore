@@ -3,3 +3,4 @@ target/
 .project
 .settings/
 .vscode/
+/src/main/resources/hibernate.cfg.xml
