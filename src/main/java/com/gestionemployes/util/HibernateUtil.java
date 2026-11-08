@@ -1,4 +1,3 @@
-
 package com.gestionemployes.util;
 
 import org.hibernate.SessionFactory;
