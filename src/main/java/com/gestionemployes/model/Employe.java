@@ -1,5 +1,6 @@
 package com.gestionemployes.model;
 
+import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -19,6 +20,11 @@ public class Employe {
     private double salaire;
 
     private String email;
+    @Column(name = "mot_de_passe")
+    private String motDePasse;
+
+    public String getMotDePasse() { return motDePasse; }
+    public void setMotDePasse(String motDePasse) { this.motDePasse = motDePasse; }
 
     public Employe() {
     }

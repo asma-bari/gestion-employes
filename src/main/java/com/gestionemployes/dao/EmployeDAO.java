@@ -57,6 +57,21 @@ public class EmployeDAO {
         }
     }
 
+    public Employe rechercherParEmail(String email) {
+
+        try (Session session = HibernateUtil.getSessionFactory().openSession()) {
+
+            return session.createQuery(
+                    "FROM Employe WHERE email = :email", Employe.class)
+                    .setParameter("email", email)
+                    .uniqueResult();
+
+        } catch (Exception e) {
+
+            throw new RuntimeException("Erreur lors de la recherche par e-mail", e);
+        }
+    }
+
     public void modifier(Employe employe) {
 
         Transaction transaction = null;
