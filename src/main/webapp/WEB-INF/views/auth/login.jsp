@@ -24,8 +24,8 @@
         <form action="${pageContext.request.contextPath}/login" method="post">
 
             <div class="form-group">
-                <label for="email">E-mail</label>
-                <input type="email" id="email" name="email"
+                <label for="login">Identifiant</label>
+                <input type="text" id="login" name="login"
                        autocomplete="username" required>
             </div>
 

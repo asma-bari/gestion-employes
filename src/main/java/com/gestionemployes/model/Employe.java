@@ -1,5 +1,7 @@
 package com.gestionemployes.model;
 
+import java.time.LocalDate;
+
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
@@ -13,51 +15,54 @@ public class Employe {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private int id;
+    @Column(name = "id_employe")
+    private Long idEmploye;
 
+    @Column(nullable = false, unique = true, length = 30)
+    private String matricule;
+
+    @Column(nullable = false, length = 100)
     private String nom;
 
-    private double salaire;
+    @Column(nullable = false, length = 100)
+    private String prenom;
 
+    @Column(nullable = false, unique = true, length = 150)
     private String email;
-    @Column(name = "mot_de_passe")
-    private String motDePasse;
 
-    public String getMotDePasse() { return motDePasse; }
-    public void setMotDePasse(String motDePasse) { this.motDePasse = motDePasse; }
+    @Column(length = 20)
+    private String telephone;
+
+    @Column(length = 255)
+    private String adresse;
+
+    @Column(name = "date_recrutement", nullable = false)
+    private LocalDate dateRecrutement;
 
     public Employe() {
     }
 
-    public int getId() {
-        return id;
-    }
+    public Long getIdEmploye() { return idEmploye; }
+    public void setIdEmploye(Long idEmploye) { this.idEmploye = idEmploye; }
 
-    public void setId(int id) {
-        this.id = id;
-    }
+    public String getMatricule() { return matricule; }
+    public void setMatricule(String matricule) { this.matricule = matricule; }
 
-    public String getNom() {
-        return nom;
-    }
+    public String getNom() { return nom; }
+    public void setNom(String nom) { this.nom = nom; }
 
-    public void setNom(String nom) {
-        this.nom = nom;
-    }
+    public String getPrenom() { return prenom; }
+    public void setPrenom(String prenom) { this.prenom = prenom; }
 
-    public double getSalaire() {
-        return salaire;
-    }
+    public String getEmail() { return email; }
+    public void setEmail(String email) { this.email = email; }
 
-    public void setSalaire(double salaire) {
-        this.salaire = salaire;
-    }
+    public String getTelephone() { return telephone; }
+    public void setTelephone(String telephone) { this.telephone = telephone; }
 
-    public String getEmail() {
-        return email;
-    }
+    public String getAdresse() { return adresse; }
+    public void setAdresse(String adresse) { this.adresse = adresse; }
 
-    public void setEmail(String email) {
-        this.email = email;
-    }
+    public LocalDate getDateRecrutement() { return dateRecrutement; }
+    public void setDateRecrutement(LocalDate dateRecrutement) { this.dateRecrutement = dateRecrutement; }
 }
