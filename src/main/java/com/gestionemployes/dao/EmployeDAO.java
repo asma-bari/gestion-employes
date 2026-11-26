@@ -1,149 +1,154 @@
 package com.gestionemployes.dao;
 
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.hibernate.Session;
-import org.hibernate.Transaction;
 
 import com.gestionemployes.model.Employe;
-import com.gestionemployes.util.HibernateUtil;
 
-public class EmployeDAO {
+public class EmployeDAO extends BaseDAO<Employe> {
 
-    public void ajouter(Employe employe) {
+    public static final String HQL_PAR_MATRICULE = "FROM Employe e WHERE e.matricule = :matricule";
+    public static final String HQL_PAR_EMAIL = "FROM Employe e WHERE e.email = :email";
 
-        Transaction transaction = null;
+    public static final String HQL_COMPTER_PAR_DEPARTEMENT =
+            "SELECT COUNT(e) FROM Employe e JOIN e.departement d WHERE d.idDepartement = :id";
+    public static final String HQL_COMPTER_PAR_POSTE =
+            "SELECT COUNT(e) FROM Employe e JOIN e.poste p WHERE p.idPoste = :id";
 
-        try (Session session = HibernateUtil.getSessionFactory().openSession()) {
+    public static final String HQL_EFFECTIFS_DEPARTEMENTS =
+            "SELECT d.idDepartement, COUNT(e) FROM Employe e JOIN e.departement d GROUP BY d.idDepartement";
+    public static final String HQL_EFFECTIFS_POSTES =
+            "SELECT p.idPoste, COUNT(e) FROM Employe e JOIN e.poste p GROUP BY p.idPoste";
 
-            transaction = session.beginTransaction();
-            session.persist(employe);
-            transaction.commit();
+    public EmployeDAO() {
+        super(Employe.class);
+    }
 
-        } catch (Exception e) {
-            if (transaction != null && transaction.isActive()) {
-                transaction.rollback();
+    public static String construireRecherche(int nbMots, boolean avecDepartement, boolean avecPoste) {
+
+        List<String> conditions = new ArrayList<>();
+
+        for (int i = 0; i < nbMots; i++) {
+            conditions.add("(lower(e.matricule) LIKE :mot" + i
+                    + " OR lower(e.nom) LIKE :mot" + i
+                    + " OR lower(e.prenom) LIKE :mot" + i + ")");
+        }
+        if (avecDepartement) {
+            conditions.add("d.idDepartement = :departement");
+        }
+        if (avecPoste) {
+            conditions.add("p.idPoste = :poste");
+        }
+
+        StringBuilder hql = new StringBuilder(
+                "SELECT e FROM Employe e LEFT JOIN FETCH e.departement d LEFT JOIN FETCH e.poste p");
+
+        if (!conditions.isEmpty()) {
+            hql.append(" WHERE ").append(String.join(" AND ", conditions));
+        }
+
+        hql.append(" ORDER BY e.nom, e.prenom");
+        return hql.toString();
+    }
+
+    public List<Employe> rechercher(String terme, Long idDepartement, Long idPoste) {
+
+        String[] mots = (terme == null || terme.isBlank())
+                ? new String[0]
+                : terme.trim().toLowerCase().split("\\s+");
+
+        try (Session session = sessionFactory().openSession()) {
+
+            var requete = session.createQuery(
+                    construireRecherche(mots.length, idDepartement != null, idPoste != null),
+                    Employe.class);
+
+            for (int i = 0; i < mots.length; i++) {
+                requete.setParameter("mot" + i, "%" + mots[i] + "%");
             }
-            throw new RuntimeException("Erreur lors de l'ajout de l'employé", e);
-        }
-    }
+            if (idDepartement != null) {
+                requete.setParameter("departement", idDepartement);
+            }
+            if (idPoste != null) {
+                requete.setParameter("poste", idPoste);
+            }
 
-    public List<Employe> afficherTous() {
-
-        try (Session session = HibernateUtil.getSessionFactory().openSession()) {
-
-            return session.createQuery(
-                    "FROM Employe e ORDER BY e.nom, e.prenom", Employe.class)
-                    .getResultList();
-
-        } catch (Exception e) {
-            throw new RuntimeException("Erreur lors de l'affichage des employés", e);
-        }
-    }
-
-    public List<Employe> rechercher(String terme) {
-
-        try (Session session = HibernateUtil.getSessionFactory().openSession()) {
-
-            return session.createQuery(
-                    "FROM Employe e "
-                    + "WHERE lower(e.matricule) LIKE :t "
-                    + "OR lower(e.nom) LIKE :t "
-                    + "OR lower(e.prenom) LIKE :t "
-                    + "ORDER BY e.nom, e.prenom", Employe.class)
-                    .setParameter("t", "%" + terme.toLowerCase() + "%")
-                    .getResultList();
+            return requete.getResultList();
 
         } catch (Exception e) {
             throw new RuntimeException("Erreur lors de la recherche des employés", e);
         }
     }
 
-    public Employe rechercherParId(Long id) {
-
-        if (id == null) {
-            return null;
-        }
-
-        try (Session session = HibernateUtil.getSessionFactory().openSession()) {
-
-            return session.get(Employe.class, id);
-
-        } catch (Exception e) {
-            throw new RuntimeException("Erreur lors de la recherche de l'employé", e);
-        }
+    @Override
+    public List<Employe> tous() {
+        return rechercher(null, null, null);
     }
 
-    public Employe rechercherParMatricule(String matricule) {
-
-        try (Session session = HibernateUtil.getSessionFactory().openSession()) {
-
-            return session.createQuery(
-                    "FROM Employe WHERE matricule = :matricule", Employe.class)
+    public Employe trouverParMatricule(String matricule) {
+        try (Session session = sessionFactory().openSession()) {
+            return session.createQuery(HQL_PAR_MATRICULE, Employe.class)
                     .setParameter("matricule", matricule)
+                    .setMaxResults(1)
                     .uniqueResult();
-
         } catch (Exception e) {
             throw new RuntimeException("Erreur lors de la recherche par matricule", e);
         }
     }
 
-    public Employe rechercherParEmail(String email) {
-
-        try (Session session = HibernateUtil.getSessionFactory().openSession()) {
-
-            return session.createQuery(
-                    "FROM Employe WHERE email = :email", Employe.class)
+    public Employe trouverParEmail(String email) {
+        try (Session session = sessionFactory().openSession()) {
+            return session.createQuery(HQL_PAR_EMAIL, Employe.class)
                     .setParameter("email", email)
+                    .setMaxResults(1)
                     .uniqueResult();
-
         } catch (Exception e) {
             throw new RuntimeException("Erreur lors de la recherche par e-mail", e);
         }
     }
 
-    public void modifier(Employe employe) {
+    public long compterParDepartement(Long idDepartement) {
+        return compterPar(HQL_COMPTER_PAR_DEPARTEMENT, idDepartement);
+    }
 
-        Transaction transaction = null;
+    public long compterParPoste(Long idPoste) {
+        return compterPar(HQL_COMPTER_PAR_POSTE, idPoste);
+    }
 
-        try (Session session = HibernateUtil.getSessionFactory().openSession()) {
-
-            transaction = session.beginTransaction();
-            session.merge(employe);
-            transaction.commit();
-
+    private long compterPar(String hql, Long id) {
+        try (Session session = sessionFactory().openSession()) {
+            return session.createQuery(hql, Long.class)
+                    .setParameter("id", id)
+                    .getSingleResult();
         } catch (Exception e) {
-            if (transaction != null && transaction.isActive()) {
-                transaction.rollback();
-            }
-            throw new RuntimeException("Erreur lors de la modification de l'employé", e);
+            throw new RuntimeException("Erreur lors du comptage des employés", e);
         }
     }
 
-    public void supprimer(Long id) {
+    public Map<Long, Long> effectifsParDepartement() {
+        return effectifs(HQL_EFFECTIFS_DEPARTEMENTS);
+    }
 
-        if (id == null) {
-            return;
-        }
+    public Map<Long, Long> effectifsParPoste() {
+        return effectifs(HQL_EFFECTIFS_POSTES);
+    }
 
-        Transaction transaction = null;
+    private Map<Long, Long> effectifs(String hql) {
+        try (Session session = sessionFactory().openSession()) {
 
-        try (Session session = HibernateUtil.getSessionFactory().openSession()) {
+            Map<Long, Long> resultat = new HashMap<>();
 
-            transaction = session.beginTransaction();
-
-            Employe employe = session.get(Employe.class, id);
-            if (employe != null) {
-                session.remove(employe);
+            for (Object[] ligne : session.createQuery(hql, Object[].class).getResultList()) {
+                resultat.put((Long) ligne[0], (Long) ligne[1]);
             }
-
-            transaction.commit();
+            return resultat;
 
         } catch (Exception e) {
-            if (transaction != null && transaction.isActive()) {
-                transaction.rollback();
-            }
-            throw new RuntimeException("Erreur lors de la suppression de l'employé", e);
+            throw new RuntimeException("Erreur lors du calcul des effectifs", e);
         }
     }
 }

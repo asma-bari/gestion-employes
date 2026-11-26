@@ -7,9 +7,17 @@ import org.hibernate.boot.registry.StandardServiceRegistryBuilder;
 
 public class HibernateUtil {
 
-    
-    private static final SessionFactory SESSION_FACTORY =
-            buildSessionFactory();
+    private static SessionFactory sessionFactory;
+
+    private HibernateUtil() {
+    }
+
+    public static synchronized SessionFactory getSessionFactory() {
+        if (sessionFactory == null) {
+            sessionFactory = buildSessionFactory();
+        }
+        return sessionFactory;
+    }
 
     private static SessionFactory buildSessionFactory() {
 
@@ -24,20 +32,15 @@ public class HibernateUtil {
                     .buildSessionFactory();
 
         } catch (Exception e) {
-
             StandardServiceRegistryBuilder.destroy(registry);
-
             throw new ExceptionInInitializerError(e);
         }
     }
 
-    public static SessionFactory getSessionFactory() {
-        return SESSION_FACTORY;
-    }
-
-    public static void shutdown() {
-        if (SESSION_FACTORY != null) {
-            SESSION_FACTORY.close();
+    public static synchronized void shutdown() {
+        if (sessionFactory != null) {
+            sessionFactory.close();
+            sessionFactory = null;
         }
     }
 }

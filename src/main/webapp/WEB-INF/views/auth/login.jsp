@@ -1,4 +1,5 @@
 <%@ page contentType="text/html; charset=UTF-8" pageEncoding="UTF-8" %>
+<%@ page import="com.gestionemployes.util.Html" %>
 <!DOCTYPE html>
 <html lang="fr">
 <head>
@@ -17,7 +18,7 @@
 
         <% if (request.getAttribute("erreur") != null) { %>
             <div class="error-message">
-                <%= request.getAttribute("erreur") %>
+                <%= Html.e(request.getAttribute("erreur")) %>
             </div>
         <% } %>
 

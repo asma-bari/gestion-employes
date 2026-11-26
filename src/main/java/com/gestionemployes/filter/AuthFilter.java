@@ -12,7 +12,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
 
-@WebFilter(urlPatterns = {"/employes", "/employes/*"})
+@WebFilter(urlPatterns = {"/dashboard", "/employes", "/departements", "/postes"})
 public class AuthFilter implements Filter {
 
     @Override
@@ -24,7 +24,11 @@ public class AuthFilter implements Filter {
 
         HttpSession session = request.getSession(false);
 
-        if (session != null && session.getAttribute("utilisateur") != null) {
+        boolean connecte = session != null
+                && session.getAttribute("utilisateur") != null
+                && "ADMIN".equals(session.getAttribute("role"));
+
+        if (connecte) {
             response.setHeader("Cache-Control", "no-store");
             chain.doFilter(req, res);
         } else {

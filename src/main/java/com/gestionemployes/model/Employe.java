@@ -7,6 +7,8 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 
 @Entity
@@ -39,6 +41,14 @@ public class Employe {
     @Column(name = "date_recrutement", nullable = false)
     private LocalDate dateRecrutement;
 
+    @ManyToOne
+    @JoinColumn(name = "id_departement")
+    private Departement departement;
+
+    @ManyToOne
+    @JoinColumn(name = "id_poste")
+    private Poste poste;
+
     public Employe() {
     }
 
@@ -65,4 +75,10 @@ public class Employe {
 
     public LocalDate getDateRecrutement() { return dateRecrutement; }
     public void setDateRecrutement(LocalDate dateRecrutement) { this.dateRecrutement = dateRecrutement; }
+
+    public Departement getDepartement() { return departement; }
+    public void setDepartement(Departement departement) { this.departement = departement; }
+
+    public Poste getPoste() { return poste; }
+    public void setPoste(Poste poste) { this.poste = poste; }
 }
