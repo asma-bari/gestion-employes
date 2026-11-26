@@ -143,7 +143,7 @@ public class AppInitializer implements ServletContextListener {
         e.setMatricule(donnees[0]);
         e.setPrenom(donnees[1]);
         e.setNom(donnees[2]);
-        e.setEmail(donnees[3] + "@gestion-employes.ma");
+        e.setEmail(donnees[3] + "@gmail.com");
         e.setDateRecrutement(LocalDate.parse(donnees[4]));
         e.setDepartement(departement);
         e.setPoste(poste);
