@@ -44,7 +44,7 @@ Application web **Servlets / JSP / Hibernate (JPA) / MySQL** en architecture **M
 | `admin` | `admin123` |
 
 Le compte est créé au démarrage (table `utilisateurs`, mot de passe haché avec PBKDF2-HMAC-SHA256).
-Trois départements et trois postes d'exemple sont aussi créés si les tables sont vides.
+Cinq départements, dix postes et vingt employés d'exemple sont aussi créés si les tables sont vides.
 
 ## Structure du code (MVC)
 
