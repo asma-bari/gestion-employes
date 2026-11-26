@@ -15,11 +15,20 @@ Application web **Servlets / JSP / Hibernate (JPA) / MySQL** en architecture **M
 ## Lancer l'application
 
 1. Démarrer MySQL.
-2. Accès MySQL : l'application utilise l'utilisateur **`admin`** (mot de passe déjà renseigné dans
-   `src/main/resources/hibernate.cfg.xml`). Si cet utilisateur n'existe pas encore dans MySQL,
-   exécuter une fois : `mysql -u root -p < database/creer_utilisateur_admin.sql`.
-   La base `gestion_employes` et toutes les tables sont **créées automatiquement**
-   au premier démarrage (`hibernate.hbm2ddl.auto=update`).
+2. Configurer l'accès à MySQL :
+   - Copier `src/main/resources/hibernate.cfg.xml.example` en `src/main/resources/hibernate.cfg.xml`
+     (dossier `resources`, avec un seul « s »).
+   - Dans ce nouveau fichier, remplacer `VOTRE_UTILISATEUR_MYSQL` et `VOTRE_MOT_DE_PASSE_MYSQL`
+     par votre utilisateur et votre mot de passe MySQL.
+   - Si vous n'avez pas encore d'utilisateur dédié, vous pouvez en créer un depuis MySQL
+     (connecté en `root`), en remplaçant le mot de passe :
+     ```sql
+     CREATE USER IF NOT EXISTS 'admin'@'localhost' IDENTIFIED BY 'VOTRE_MOT_DE_PASSE';
+     GRANT ALL PRIVILEGES ON gestion_employes.* TO 'admin'@'localhost';
+     FLUSH PRIVILEGES;
+     ```
+   - La base `gestion_employes` et toutes les tables sont **créées automatiquement**
+     au premier démarrage (`hibernate.hbm2ddl.auto=update`).
 3. Construire le WAR :
    ```
    mvn clean package
@@ -71,5 +80,6 @@ modification. Pour repartir de zéro : `DROP DATABASE gestion_employes;` puis re
 
 ## Git
 
-`hibernate.cfg.xml` est ignoré par Git (mot de passe). `hibernate.cfg.xml.example` sert de modèle :
-le binôme le copie en `hibernate.cfg.xml` et renseigne son propre mot de passe MySQL.
+`hibernate.cfg.xml` est ignoré par Git (il contient le mot de passe MySQL). `hibernate.cfg.xml.example`
+sert de modèle : chaque membre du binôme le copie en `hibernate.cfg.xml` et renseigne son propre
+utilisateur et mot de passe MySQL. Ne jamais commiter de mot de passe.
